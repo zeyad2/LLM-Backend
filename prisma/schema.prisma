@@ -1,0 +1,189 @@
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+enum Role {
+    STUDENT
+    TEACHER
+    ADMIN
+}
+
+enum EnrollmentRequestStatus {
+    PENDING
+    APPROVED
+    REJECTED
+}
+
+enum AssessmentType {
+    TEST
+    HOMEWORK
+}
+
+enum AttendanceStatus {
+    PRESENT
+    ABSENT
+    LATE
+}
+
+model User {
+    id                 Int                 @id @default(autoincrement())
+    name               String              @db.VarChar(100)
+    email              String              @unique @db.VarChar(255)
+    password           String              @db.VarChar(255)
+    role               Role
+    is_deleted         Boolean             @default(false)
+    created_at         DateTime            @default(now())
+    updated_at         DateTime            @updatedAt
+    // Relations
+    enrollmentRequests EnrollmentRequest[] @relation("EnrollmentRequestStudent")
+    enrollments        Enrollment[]        @relation("EnrollmentStudent")
+    submissions        Submission[]        @relation("SubmissionStudent")
+    attendance         Attendance[]        @relation("AttendanceStudent")
+}
+
+model Course {
+    id                 Int                 @id @default(autoincrement())
+    title              String              @db.VarChar(255)
+    description        String?
+    is_deleted         Boolean             @default(false)
+    created_at         DateTime            @default(now())
+    // Relations
+    enrollmentRequests EnrollmentRequest[] @relation("EnrollmentRequestCourse")
+    enrollments        Enrollment[]        @relation("EnrollmentCourse")
+    lessons            Lesson[]
+    assessments        Assessment[]
+    sessions           Session[]
+}
+
+model EnrollmentRequest {
+    id           Int                     @id @default(autoincrement())
+    student_id   Int
+    course_id    Int
+    status       EnrollmentRequestStatus @default(PENDING)
+    requested_at DateTime                @default(now())
+    // Relations
+    student      User                    @relation("EnrollmentRequestStudent", fields: [student_id], references: [id])
+    course       Course                  @relation("EnrollmentRequestCourse", fields: [course_id], references: [id])
+
+    @@unique([student_id, course_id])
+    @@index([student_id])
+    @@index([course_id])
+}
+
+model Enrollment {
+    id          Int      @id @default(autoincrement())
+    student_id  Int
+    course_id   Int
+    enrolled_at DateTime @default(now())
+    // Relations
+    student     User     @relation("EnrollmentStudent", fields: [student_id], references: [id])
+    course      Course   @relation("EnrollmentCourse", fields: [course_id], references: [id])
+
+    @@unique([student_id, course_id])
+    @@index([student_id])
+    @@index([course_id])
+}
+
+model Lesson {
+    id         Int      @id @default(autoincrement())
+    course_id  Int
+    title      String   @db.VarChar(255)
+    pdf_path   String?  @db.VarChar(512)
+    drive_link String?
+    is_deleted Boolean  @default(false)
+    created_at DateTime @default(now())
+    // Relations
+    course     Course   @relation(fields: [course_id], references: [id])
+
+    // No direct relation to sessions, but can be added if needed
+    @@index([course_id])
+}
+
+model Assessment {
+    id               Int            @id @default(autoincrement())
+    course_id        Int
+    title            String         @db.VarChar(255)
+    type             AssessmentType
+    duration_minutes Int?
+    is_deleted       Boolean        @default(false)
+    created_at       DateTime       @default(now())
+    // Relations
+    course           Course         @relation(fields: [course_id], references: [id])
+    paragraphs       Paragraph[]
+    submissions      Submission[]
+
+    @@index([course_id])
+    @@index([type])
+}
+
+model Paragraph {
+    id            Int        @id @default(autoincrement())
+    assessment_id Int
+    content       String
+    image_url     String?
+    created_at    DateTime   @default(now())
+    // Relations
+    assessment    Assessment @relation(fields: [assessment_id], references: [id])
+    questions     Question[]
+
+    @@index([assessment_id])
+}
+
+model Question {
+    id             Int       @id @default(autoincrement())
+    paragraph_id   Int
+    question_text  String
+    options        Json
+    correct_answer String    @db.VarChar(255)
+    created_at     DateTime  @default(now())
+    // Relations
+    paragraph      Paragraph @relation(fields: [paragraph_id], references: [id])
+
+    @@index([paragraph_id])
+}
+
+model Submission {
+    id            Int        @id @default(autoincrement())
+    assessment_id Int
+    student_id    Int
+    answers       Json
+    score         Float?
+    submitted_at  DateTime   @default(now())
+    // Relations
+    assessment    Assessment @relation(fields: [assessment_id], references: [id])
+    student       User       @relation("SubmissionStudent", fields: [student_id], references: [id])
+
+    @@unique([student_id, assessment_id])
+    @@index([student_id])
+    @@index([assessment_id])
+}
+
+model Session {
+    id           Int          @id @default(autoincrement())
+    course_id    Int
+    session_date DateTime
+    // Relations
+    course       Course       @relation(fields: [course_id], references: [id])
+    attendance   Attendance[]
+
+    @@index([course_id])
+}
+
+model Attendance {
+    id         Int              @id @default(autoincrement())
+    student_id Int
+    session_id Int
+    status     AttendanceStatus @default(PRESENT)
+    // Relations
+    student    User             @relation("AttendanceStudent", fields: [student_id], references: [id])
+    session    Session          @relation(fields: [session_id], references: [id])
+
+    @@unique([student_id, session_id])
+    @@index([student_id])
+    @@index([session_id])
+}

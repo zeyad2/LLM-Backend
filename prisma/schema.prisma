@@ -49,9 +49,11 @@ model User {
 model Course {
     id                 Int                 @id @default(autoincrement())
     title              String              @db.VarChar(255)
+    thumbnail          String              @db.VarChar(500)
     description        String?
     is_deleted         Boolean             @default(false)
     created_at         DateTime            @default(now())
+    is_archived        Boolean             @default(false)
     // Relations
     enrollmentRequests EnrollmentRequest[] @relation("EnrollmentRequestCourse")
     enrollments        Enrollment[]        @relation("EnrollmentCourse")

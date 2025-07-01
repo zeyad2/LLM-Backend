@@ -2,32 +2,30 @@ import jwt from "jsonwebtoken";
 import envConfig from "../config/env.config.js";
 import prisma from "../prisma/prisma.js";
 
-const authorize = async (req, res, next) => {
+const authenticate = async (req, res, next) => {
+  let token;
+  req.user = null;
   try {
-    let token;
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, envConfig.JWT_SECRET);
+      const user = await prisma.User.findUnique({
+        where: { id: decoded.userId },
+      });
+      req.user = user || null;
     }
-
-    if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-    const decoded = jwt.verify(token, envConfig.JWT_SECRET);
-
-    const decodedUser = await prisma.User.findUnique({
-      where: { id: decoded.userId },
-    });
-
-    if (!decodedUser) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    req.user = decodedUser;
-    next();
   } catch (error) {
-    res.status(401).json({ message: "Unauthorized", error: error.message });
+    req.user = null;
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
+  next();
 };
 
-export default authorize;
+
+
+export default authenticate;

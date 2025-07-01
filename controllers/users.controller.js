@@ -4,7 +4,6 @@ import envConfig from "../config/env.config.js";
 
 export const getStudentById = async (req, res, next) => {
   try {
-    const authenticatedUser = req.user;
 
     const user = await prisma.User.findUnique({
       where: { id: +req.params.id },
@@ -23,16 +22,14 @@ export const getStudentById = async (req, res, next) => {
   }
 };
 
+
+//searches students if provided with a name else returns all students
 export const getStudents = async (req, res, next) => {
   try {
-    const authenticatedUser = req.user;
     const { name } = req.query;
 
-    if (authenticatedUser.role !== "ADMIN") {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-
     let users;
+
     if (name) {
       users = await prisma.User.findMany({
         where: { name: { contains: name } },
@@ -55,10 +52,13 @@ export const getStudents = async (req, res, next) => {
 };
 
 export const getProfile = async (req, res, next) => {
-  const authenticatedUser = req.user;
+  if (!req.user) {
+    return res.status(401).json({ message: "Please Sign In" });
+  }
+  
   try {
     const user = await prisma.User.findUnique({
-      where: { id: authenticatedUser.id },
+      where: { id: req.user.id },
     });
 
     if (!user) {
@@ -66,7 +66,6 @@ export const getProfile = async (req, res, next) => {
     }
 
     return res.status(200).json({ message: "User found", data: user });
-
   } catch (error) {
     console.error(error);
     return res
@@ -74,3 +73,14 @@ export const getProfile = async (req, res, next) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+
+
+// implement filtering based on courses as well 
+
+
+
+//to be implemented maybe call after forget password?
+export const updateStudent = async (req,res,next) => {
+//
+}

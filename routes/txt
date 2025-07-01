@@ -1,0 +1,153 @@
+Here’s a **structured summary** of the current routes and a **detailed execution plan** for implementing the missing routes based on your schema and features:
+
+---
+
+## ✅ **Current Implemented Routes**
+
+### 🔐 **Authentication**
+
+| Method | Route     | Description         |
+| ------ | --------- | ------------------- |
+| POST   | `/signup` | Register a new user |
+| POST   | `/signin` | Log in a user       |
+
+---
+
+### 🎓 **Courses**
+
+| Method    | Route          | Description                  |
+| ------    | -------------- | ---------------------------- |
+| POST      | `/courses/`    | Create a course (admin only) |
+| GET       | `/courses/`    | List all courses             |
+| GET       | `/courses/:id` | Get course details           |
+| PUT       | `/courses/:id` | Update course (admin only)   | // not implemented yet
+| Delete    | `/courses/:id` | Update course (admin only)   |
+
+
+---
+
+### 👤 **Users**
+
+| Method | Route            | Description                               |
+| ------ | ---------------- | ----------------------------------------- |
+| GET    | `/users/profile` | Get current user profile                  |
+| GET    | `/users/`        | List all students (admin only)            | // can also search by name
+| GET    | `/users/:id`     | Get specific student details (admin only) |
+| PUT    | `/users/`        | Update a student (admin only)             | //not implemented. what usecases?
+ 
+ // add option to filter students by course.
+
+---
+
+## 🚧 **Execution Plan: Routes Yet to Be Implemented**
+
+Organized by feature module:
+
+---
+
+### 📥 **Enrollment & Requests**
+
+| Method | Route                            | Description                             |
+| ------ | -------------------------------- | --------------------------------------- |
+| POST   | `/enrollments/request`           | Student requests enrollment in a course | // done
+| GET    | `/enrollments/requests`          | Admin views all enrollment requests     | //done
+| PATCH  | `/enrollments/requests/:id`      | Admin approves/rejects a request        | //done 
+| GET    | `/enrollments/courses/:courseId` | List students enrolled in a course      | // done
+| GET    | `/enrollments/my-courses`        | List courses a student is enrolled in   | // use case? to do later
+
+//add option to filter requests by course 
+
+---
+
+### 📚 **Lessons**
+
+| Method | Route                       | Description                     |
+| ------ | --------------------------- | ------------------------------- |
+| POST   | `/lessons/`                 | Create a lesson for a course    |
+| GET    | `/lessons/course/:courseId` | List lessons for a course       |
+| GET    | `/lessons/:id`              | Get a specific lesson's details |
+| DELETE | `/lessons/:id`              | Soft delete a lesson            |
+
+---
+
+### 📝 **Assessments & Submissions**
+
+| Method | Route                            | Description                     |
+| ------ | -------------------------------- | ------------------------------- |
+| POST   | `/assessments/`                  | Create an assessment            |
+| GET    | `/assessments/course/:courseId`  | List assessments for a course   |
+| GET    | `/assessments/:id`               | Get assessment details          |
+| DELETE | `/assessments/:id`               | Soft delete assessment          |
+| POST   | `/submissions/`                  | Submit answers to an assessment |
+| GET    | `/submissions/my/:assessmentId`  | Student views their submission  |
+| GET    | `/submissions/all/:assessmentId` | Admin views all submissions     |
+
+---
+
+### 📄 **Paragraphs & Questions (Assessment Content)**
+
+| Method | Route                       | Description                      |
+| ------ | --------------------------- | -------------------------------- |
+| POST   | `/paragraphs/`              | Add a paragraph to an assessment |
+| GET    | `/paragraphs/:assessmentId` | List paragraphs in assessment    |
+| POST   | `/questions/`               | Add a question to a paragraph    |
+| GET    | `/questions/:paragraphId`   | List questions for a paragraph   |
+
+---
+
+### 📆 **Sessions & Attendance**
+
+| Method | Route                            | Description                         |
+| ------ | -------------------------------- | ----------------------------------- |
+| POST   | `/sessions/`                     | Create a new session for a course   |
+| GET    | `/sessions/course/:courseId`     | List sessions for a course          |
+| POST   | `/attendance/`                   | Mark attendance for a session       |
+| GET    | `/attendance/session/:sessionId` | View attendance list for a session  |
+| GET    | `/attendance/student/:studentId` | View a student’s attendance history |
+
+---
+
+### 🗑️ **Deletion / Archiving**
+
+| Method | Route                  | Description                      |
+| ------ | ---------------------- | -------------------------------- |
+| DELETE | `/courses/:id`         | Soft delete course (admin)       |
+| PATCH  | `/courses/:id/archive` | Archive/unarchive course (admin) |
+| DELETE | `/users/:id`           | Soft delete user (admin)         |
+
+---
+
+### 🚪 **Miscellaneous**
+
+| Method | Route      | Description                                              |
+| ------ | ---------- | -------------------------------------------------------- |
+| POST   | `/signout` | Log out user (if using token blacklist or session store) |
+
+---
+
+## 🧩 Suggested Execution Plan
+
+### ✅ **Phase 1: Enrollment & Lessons**
+
+* Implement enrollment requests and approval.
+* List student's own courses.
+* Implement lesson creation and fetching.
+
+### ✅ **Phase 2: Assessments & Submissions**
+
+* Create assessments with paragraphs/questions.
+* Handle student submissions and admin review.
+
+### ✅ **Phase 3: Attendance**
+
+* Implement sessions for courses.
+* Add attendance marking and viewing.
+
+### ✅ **Phase 4: Cleanup & Utilities**
+
+* Add soft delete/archive functionality.
+* Implement signout if needed.
+
+---
+
+Would you like me to generate Express route files/templates for each module to speed things up?

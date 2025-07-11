@@ -21,10 +21,8 @@ enrollmentsRouter.post("/requests/:id", authenticate, createEnrollmentRequest);
 
 
 
-
-
 //accept or reject request, inserts into enrollments
-enrollmentsRouter.patch("requests/:id", authenticate, authorizeAdmin, handleRequest);
+enrollmentsRouter.patch("/requests/:id", authenticate, authorizeAdmin, handleRequest);
 
 
 

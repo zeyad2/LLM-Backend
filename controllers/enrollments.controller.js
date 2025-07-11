@@ -113,22 +113,36 @@ export const handleRequest = async (req, res, next) => {
   }
 };
 
-
-
 export const getEnrollments = async (req, res, next) => {
   try {
     let enrollments;
 
     if (!req.params.id) {
       enrollments = await prisma.Enrollment.findMany();
+
+      if (enrollments.length === 0) {
+        return res.status(200).json({ message: "no students enrolled yet" });
+      }
       return res
         .status(200)
         .json({ message: "enrollments found", data: enrollments });
     }
 
+    let course = await prisma.Course.findUnique({
+      where: { id: +req.params.id },
+    });
+
+    if (!course) {
+      return res.status(404).json({ message: "course not found" });
+    }
+    
     enrollments = await prisma.Enrollment.findMany({
       where: { course_id: +req.params.id },
     });
+
+    if (enrollments.length === 0) {
+      return res.status(200).json({ message: "no students enrolled yet" });
+    }
 
     return res
       .status(200)

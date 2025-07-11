@@ -5,8 +5,9 @@ import envConfig from "../config/env.config.js";
 
 export const signup = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
-    if (!name || !email || !password || !role) {
+    const { name, email, password} = req.body;
+    let role;
+    if (!name || !email || !password ) {
       return res.status(400).json({ message: "all fields are required" });
     }
 

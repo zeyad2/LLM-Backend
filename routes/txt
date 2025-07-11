@@ -53,7 +53,9 @@ Organized by feature module:
 | GET    | `/enrollments/requests`          | Admin views all enrollment requests     | //done
 | PATCH  | `/enrollments/requests/:id`      | Admin approves/rejects a request        | //done 
 | GET    | `/enrollments/courses/:courseId` | List students enrolled in a course      | // done
-| GET    | `/enrollments/my-courses`        | List courses a student is enrolled in   | // use case? to do later
+| GET    | `/enrollments/my-courses`        | List courses a student is enrolled in   | // use case? to do 
+later maybe to access archived courses after theyre done? 
+
 
 //add option to filter requests by course 
 
@@ -69,6 +71,8 @@ Organized by feature module:
 | DELETE | `/lessons/:id`              | Soft delete a lesson            |
 
 ---
+
+
 
 ### 📝 **Assessments & Submissions**
 
@@ -147,6 +151,11 @@ Organized by feature module:
 
 * Add soft delete/archive functionality.
 * Implement signout if needed.
+* optimize lesson routes as they're rather slow
+
+
+
+
 
 ---
 

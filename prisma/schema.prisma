@@ -57,7 +57,7 @@ model Course {
     // Relations
     enrollmentRequests EnrollmentRequest[] @relation("EnrollmentRequestCourse")
     enrollments        Enrollment[]        @relation("EnrollmentCourse")
-    lessons            Lesson[]
+    lessons            CourseLesson[]
     assessments        Assessment[]
     sessions           Session[]
 }
@@ -70,7 +70,7 @@ model EnrollmentRequest {
     requested_at DateTime                @default(now())
     // Relations
     student      User                    @relation("EnrollmentRequestStudent", fields: [student_id], references: [id])
-    course       Course                  @relation("EnrollmentRequestCourse", fields: [course_id], references: [id])
+    course       Course                  @relation("EnrollmentRequestCourse", fields: [course_id], references: [id], onDelete: Cascade)
 
     @@unique([student_id, course_id])
     @@index([student_id])
@@ -84,7 +84,7 @@ model Enrollment {
     enrolled_at DateTime @default(now())
     // Relations
     student     User     @relation("EnrollmentStudent", fields: [student_id], references: [id])
-    course      Course   @relation("EnrollmentCourse", fields: [course_id], references: [id])
+    course      Course   @relation("EnrollmentCourse", fields: [course_id], references: [id],onDelete: Cascade)
 
     @@unique([student_id, course_id])
     @@index([student_id])
@@ -92,18 +92,37 @@ model Enrollment {
 }
 
 model Lesson {
-    id         Int      @id @default(autoincrement())
-    course_id  Int
-    title      String   @db.VarChar(255)
-    pdf_path   String?  @db.VarChar(512)
+    id         Int            @id @default(autoincrement())
+    title      String         @db.VarChar(255)
+    // pdf_path   String?  @db.VarChar(512)
     drive_link String?
-    is_deleted Boolean  @default(false)
-    created_at DateTime @default(now())
+    is_deleted Boolean        @default(false)
+    created_at DateTime       @default(now())
     // Relations
-    course     Course   @relation(fields: [course_id], references: [id])
+    courses    CourseLesson[]
+    pdfs       LessonPdf[]
 
     // No direct relation to sessions, but can be added if needed
-    @@index([course_id])
+    // @@index([course_id])
+}
+
+model LessonPdf {
+    id        Int    @id @default(autoincrement())
+    lesson_id Int
+    pdf_path  String @db.VarChar(512)
+    lesson    Lesson @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+
+    @@index([lesson_id])
+}
+
+model CourseLesson {
+    course_id Int
+    lesson_id Int
+    course   Course @relation(fields: [course_id], references: [id], onDelete: Cascade)
+    lesson   Lesson @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+
+    @@id([course_id, lesson_id])
+    @@index([lesson_id])
 }
 
 model Assessment {
@@ -115,7 +134,7 @@ model Assessment {
     is_deleted       Boolean        @default(false)
     created_at       DateTime       @default(now())
     // Relations
-    course           Course         @relation(fields: [course_id], references: [id])
+    course           Course         @relation(fields: [course_id], references: [id], onDelete: Cascade)
     paragraphs       Paragraph[]
     submissions      Submission[]
 
@@ -170,7 +189,7 @@ model Session {
     course_id    Int
     session_date DateTime
     // Relations
-    course       Course       @relation(fields: [course_id], references: [id])
+    course       Course       @relation(fields: [course_id], references: [id], onDelete: Cascade)
     attendance   Attendance[]
 
     @@index([course_id])
